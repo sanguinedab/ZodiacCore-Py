@@ -1,0 +1,103 @@
+name: Build, Test and Publish
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 1 * * 4'
+  release:
+    types: [published]
+
+jobs:
+  # 1. 静态代码检查 (Fail Fast)
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Run Lint
+        # 只运行 lint 环境
+        run: uvx --with tox-uv tox -e lint
+
+  # 2. 单元测试 (仅在 Lint 通过后运行)
+  test:
+    name: Run Tests (Multi-version)
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Run Tests
+        # 利用 tox.ini 中的配置和 -p auto 并行运行所有定义的 python 版本
+        # uv 会自动下载 tox.ini 中需要的 Python 版本 (如 3.12, 3.13, 3.14...)
+        run: uvx --with tox-uv tox -p auto
+
+  # 3. 构建包 (仅在测试通过后运行)
+  build:
+    name: Build Distribution
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Build
+        run: uv build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # 4. 发布流程 (根据 Release 类型分流)
+  
+  # 场景 A: 预发布 -> TestPyPI
+  publish-testpypi:
+    name: Publish to TestPyPI
+    if: github.event_name == 'release' && github.event.release.prerelease
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/zodiac-core
+    permissions:
+      id-token: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # 场景 B: 正式发布 -> PyPI
+  publish-pypi:
+    name: Publish to PyPI
+    if: github.event_name == 'release' && !github.event.release.prerelease
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/zodiac-core
+    permissions:
+      id-token: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
