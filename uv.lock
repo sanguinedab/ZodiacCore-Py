@@ -1019,7 +1019,6 @@ dependencies = [
     { name = "httpx" },
     { name = "loguru" },
     { name = "pydantic" },
-    { name = "sqlmodel" },
 ]
 
 [package.optional-dependencies]
@@ -1055,8 +1054,7 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "motor", marker = "extra == 'mongo'", specifier = ">=3.3.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
-    { name = "sqlmodel", marker = "extra == 'sql'", specifier = ">=0.0.22" },
-    { name = "sqlmodel", extras = ["sql"], specifier = ">=0.0.31" },
+    { name = "sqlmodel", marker = "extra == 'sql'", specifier = ">=0.0.31" },
 ]
 provides-extras = ["zodiac", "sql", "mongo"]
 

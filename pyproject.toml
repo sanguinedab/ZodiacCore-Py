@@ -13,13 +13,12 @@ dependencies = [
     "pydantic>=2.12.5",
     "loguru>=0.7.2",
     "httpx>=0.28.1",
-    "sqlmodel[sql]>=0.0.31",
 ]
 
 [project.optional-dependencies]
 zodiac = []
 sql = [
-    "sqlmodel>=0.0.22",
+    "sqlmodel>=0.0.31",
 ]
 mongo = [
     "motor>=3.3.0",
