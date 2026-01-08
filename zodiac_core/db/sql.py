@@ -20,7 +20,7 @@ def utc_now() -> datetime:
 
 
 class utcnow(expression.FunctionElement):
-    type = DateTime()
+    type = DateTime(timezone=True)
     inherit_cache = True
 
 

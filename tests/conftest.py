@@ -3,6 +3,17 @@ import pytest
 from starlette.requests import Request
 
 
+DB_URLS = [
+    ("sqlite", "sqlite:///:memory:", None),
+    ("postgresql", "postgresql://postgres:@localhost:5432/zodiac_test", {"options": "-c timezone=utc"}),
+    (
+        "mysql",
+        "mysql+pymysql://root:root@localhost:3306/zodiac_test",
+        {"init_command": "SET time_zone='+00:00'"},
+    ),
+]
+
+
 @pytest.fixture
 def mock_request():
     scope = {

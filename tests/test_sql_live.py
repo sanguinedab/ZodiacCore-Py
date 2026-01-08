@@ -6,8 +6,9 @@ from sqlalchemy import text
 
 from zodiac_core.db.sql import SQLBase, UUIDMixin, IntIDMixin
 
+from .conftest import DB_URLS
 
-# Define Test Models
+
 class Product(SQLBase, UUIDMixin, table=True):
     __tablename__ = "test_products"
     name: str
@@ -70,17 +71,7 @@ class TestSQL:
         assert c2.created_at is not None
         assert c2.updated_at is not None
 
-    @pytest.mark.parametrize(
-        "name,url,connect_args", [
-            ("sqlite", "sqlite:///:memory:", None),
-            ("postgresql", "postgresql://postgres:@localhost:5432/zodiac_test", {"options": "-c timezone=utc"}),
-            (
-                "mysql",
-                "mysql+pymysql://root:root@localhost:3306/zodiac_test",
-                {"init_command": "SET time_zone='+00:00'"},
-            ),
-        ]
-    )
+    @pytest.mark.parametrize("name,url,connect_args", DB_URLS)
     def test_db_lifecycle(self, name, url, connect_args):
         """
         Test DB lifecycle across different engines:
@@ -89,8 +80,6 @@ class TestSQL:
         extras = dict(connect_args=connect_args) if connect_args else {}
         engine = create_engine(url, **extras)
 
-        # 1. Reset Schema
-        # WARNING: This drops tables in the target database. Ensure it's a test DB.
         SQLModel.metadata.drop_all(engine)
         SQLModel.metadata.create_all(engine)
 
