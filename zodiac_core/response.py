@@ -3,7 +3,6 @@ from typing import Any, Optional
 from pydantic import BaseModel, Field, ConfigDict
 from fastapi import status
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
 
 
 class Response(BaseModel):
@@ -37,7 +36,7 @@ def create_response(
     response = Response(code=code, data=data, message=message)
     return JSONResponse(
         status_code=http_code,
-        content=jsonable_encoder(response.model_dump())
+        content=response.model_dump(mode='json')
     )
 
 
