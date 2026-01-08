@@ -1,12 +1,13 @@
 import pytest
 from time import sleep
 from datetime import timezone
-from sqlmodel import SQLModel, Session, create_engine, select
+from sqlmodel import Session, select
 from sqlalchemy import text
 
 from zodiac_core.db.sql import UUIDModel, IntIDModel
 
 from .conftest import DB_URLS
+from .utils import managed_db_session
 
 
 class Product(UUIDModel, table=True):
@@ -78,12 +79,7 @@ class TestSQL:
         Test DB lifecycle across different engines:
         DDL -> Insert -> Verify Fields (ID/Time) -> Update -> Verify Time Change
         """
-        extras = dict(connect_args=connect_args) if connect_args else {}
-        engine = create_engine(url, **extras)
-
-        SQLModel.metadata.drop_all(engine)
-        SQLModel.metadata.create_all(engine)
-
-        with Session(engine) as session:
-            self._assert_uuid(session, name == "postgresql")
-            self._assert_id(engine, session)
+        with managed_db_session(url, connect_args) as (engine, session):
+            with Session(engine) as session:
+                self._assert_uuid(session, name == "postgresql")
+                self._assert_id(engine, session)

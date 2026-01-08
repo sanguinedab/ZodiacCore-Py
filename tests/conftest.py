@@ -1,14 +1,23 @@
+import os
 import pytest
 
 from starlette.requests import Request
 
 
+# Default local development URLs
+DEFAULT_PG_URL = "postgresql://postgres:@localhost:5432/zodiac_test"
+DEFAULT_MYSQL_URL = "mysql+pymysql://root:root@localhost:3306/zodiac_test"
+
 DB_URLS = [
     ("sqlite", "sqlite:///:memory:", None),
-    ("postgresql", "postgresql://postgres:@localhost:5432/zodiac_test", {"options": "-c timezone=utc"}),
+    (
+        "postgresql",
+        os.getenv("POSTGRES_URL", DEFAULT_PG_URL),
+        {"options": "-c timezone=utc"}
+    ),
     (
         "mysql",
-        "mysql+pymysql://root:root@localhost:3306/zodiac_test",
+        os.getenv("MYSQL_URL", DEFAULT_MYSQL_URL),
         {"init_command": "SET time_zone='+00:00'"},
     ),
 ]

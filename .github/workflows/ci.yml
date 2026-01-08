@@ -2,16 +2,15 @@ name: Build, Test and Publish
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
   schedule:
-    - cron: '0 1 * * 4'
+    - cron: "0 1 * * 4"
   release:
     types: [published]
 
 jobs:
-  # 1. 静态代码检查 (Fail Fast)
   lint:
     name: Lint Code
     runs-on: ubuntu-latest
@@ -22,26 +21,60 @@ jobs:
         with:
           enable-cache: true
       - name: Run Lint
-        # 只运行 lint 环境
-        run: uvx --with tox-uv tox -e lint
+        run: make lint
 
-  # 2. 单元测试 (仅在 Lint 通过后运行)
   test:
     name: Run Tests (Multi-version)
     needs: [lint]
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: zodiac_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: zodiac_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-      - name: Run Tests
-        # 利用 tox.ini 中的配置和 -p auto 并行运行所有定义的 python 版本
-        # uv 会自动下载 tox.ini 中需要的 Python 版本 (如 3.12, 3.13, 3.14...)
-        run: uvx --with tox-uv tox -p auto
+      - name: Run Unit Tests (Parallel)
+        run: make test-parallel
 
-  # 3. 构建包 (仅在测试通过后运行)
+      - name: Run Integration Tests (Serial)
+        env:
+          POSTGRES_URL: postgresql://postgres:password@localhost:5432/zodiac_test
+          MYSQL_URL: mysql+pymysql://root:root@localhost:3306/zodiac_test
+        run: make test-serial
+
+      - name: Run all Test (312)
+        env:
+          POSTGRES_URL: postgresql://postgres:password@localhost:5432/zodiac_test
+          MYSQL_URL: mysql+pymysql://root:root@localhost:3306/zodiac_test
+        run: uvx --with tox-uv tox -e py312
+
   build:
     name: Build Distribution
     needs: [test]
@@ -58,9 +91,6 @@ jobs:
           name: dist
           path: dist/
 
-  # 4. 发布流程 (根据 Release 类型分流)
-  
-  # 场景 A: 预发布 -> TestPyPI
   publish-testpypi:
     name: Publish to TestPyPI
     if: github.event_name == 'release' && github.event.release.prerelease
@@ -82,7 +112,6 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
 
-  # 场景 B: 正式发布 -> PyPI
   publish-pypi:
     name: Publish to PyPI
     if: github.event_name == 'release' && !github.event.release.prerelease
