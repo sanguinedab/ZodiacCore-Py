@@ -20,6 +20,7 @@ class Category(IntIDModel, table=True):
     name: str
 
 
+@pytest.mark.serial
 class TestSQL:
 
     def _assert_uuid(self, session: Session, is_utc: bool = False):

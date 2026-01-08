@@ -22,6 +22,7 @@ class ProductResponse(UUIDSchema):
     # UUIDSchema includes: CoreModel Config + UUID + CreatedAt + UpdatedAt
 
 
+@pytest.mark.serial
 class TestSchemaConsistency:
 
     @pytest.mark.parametrize("name,url,connect_args", DB_URLS)
