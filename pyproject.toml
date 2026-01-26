@@ -40,6 +40,7 @@ dev = [
     "pymysql>=1.1.0",
     "cryptography>=42.0.0",
     "asyncpg>=0.31.0",
+    "aiosqlite>=0.22.1",
 ]
 sql = [
     "sqlmodel>=0.0.31",
