@@ -5,8 +5,7 @@ from sqlmodel import Session
 from zodiac_core.db.sql import SQLBase, UUIDMixin
 from zodiac_core.schemas import UUIDSchema
 
-from .conftest import DB_URLS
-from .utils import managed_db_session
+from tests.db.utils import DB_URLS, managed_db_session
 
 
 # 1. DB Model

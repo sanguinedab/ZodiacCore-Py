@@ -62,7 +62,7 @@ async def test_session_error_handling():
     # we rely on the behavior that an exception propagates.
 
     with pytest.raises(ValueError):
-        async with db.session() as session:
+        async with db.session():
             raise ValueError("Intentional Error")
 
     # Clean up

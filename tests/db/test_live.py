@@ -6,8 +6,7 @@ from sqlalchemy import text
 
 from zodiac_core.db.sql import UUIDModel, IntIDModel
 
-from .conftest import DB_URLS
-from .utils import managed_db_session
+from .utils import DB_URLS, managed_db_session
 
 
 class Product(UUIDModel, table=True):
