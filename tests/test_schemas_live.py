@@ -25,7 +25,6 @@ class ProductResponse(UUIDSchema):
 
 @pytest.mark.serial
 class TestSchemaConsistency:
-
     @pytest.mark.parametrize("name,url,connect_args", DB_URLS)
     def test_schema_serialization_consistency(self, name, url, connect_args):
         """
@@ -53,8 +52,10 @@ class TestSchemaConsistency:
                 json_output = dto.model_dump_json()
 
                 import json
+
                 data = json.loads(json_output)
 
                 created_str = data["created_at"]
-                assert created_str.endswith("+00:00") or created_str.endswith("Z"), \
+                assert created_str.endswith("+00:00") or created_str.endswith("Z"), (
                     f"{name}: JSON output {created_str} does not look like UTC ISO format"
+                )

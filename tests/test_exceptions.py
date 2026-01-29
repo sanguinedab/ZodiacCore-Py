@@ -22,7 +22,6 @@ from zodiac_core.exceptions import (
     ],
 )
 class TestZodiacExceptions:
-
     def test_default_values(self, exception_class, expected_http_code):
         exc = exception_class()
         assert exc.code == expected_http_code

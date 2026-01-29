@@ -23,7 +23,6 @@ class Category(IntIDModel, table=True):
 
 @pytest.mark.serial
 class TestSQL:
-
     def _assert_uuid(self, session: Session, is_utc: bool = False):
         p1 = Product(name="MacBook Pro", price=2000.0)
         session.add(p1)

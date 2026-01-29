@@ -10,12 +10,14 @@ from zodiac_core import Response, response_ok
 
 class User(BaseModel):
     """Mock user data model."""
+
     id: int
     name: str
 
 
 class ErrorMessage(BaseModel):
     """Mock error response model."""
+
     detail: str
 
 

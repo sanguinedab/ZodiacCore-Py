@@ -19,12 +19,12 @@ from zodiac_core.exceptions import (
 
 
 class TestExceptionHandlers:
-    media_type = 'application/json'
+    media_type = "application/json"
 
     @pytest.mark.asyncio
     async def test_global_exception(self, mock_request):
         """Test handler_global_exception catches unknown exceptions as 500"""
-        resp = await handler_global_exception(mock_request, Exception('unknown exception'))
+        resp = await handler_global_exception(mock_request, Exception("unknown exception"))
         assert resp.status_code == 500
         assert resp.media_type == self.media_type
 
@@ -93,7 +93,7 @@ class TestExceptionHandlers:
             (NotFoundException, {}, 404, "Not Found", None),
             (ConflictException, {}, 409, "Conflict", None),
             (ZodiacException, {}, 500, "Internal Server Error", None),
-        ]
+        ],
     )
     @pytest.mark.asyncio
     async def test_zodiac_exception_handler(

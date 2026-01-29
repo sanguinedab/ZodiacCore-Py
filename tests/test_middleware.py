@@ -60,7 +60,6 @@ async def test_context_reset():
 
 @pytest.mark.asyncio
 class TestMiddlewareStack:
-
     @pytest.fixture
     def app(self):
         """Create a reusable FastAPI app with middleware stack registered."""
@@ -82,7 +81,7 @@ class TestMiddlewareStack:
             trace_id = resp.headers["X-Request-ID"]
 
         captured = capsys.readouterr()
-        log_entry = json.loads(captured.err.strip().split('\n')[-1])
+        log_entry = json.loads(captured.err.strip().split("\n")[-1])
 
         assert log_entry["record"]["extra"]["service"] == "test-service"
         assert log_entry["record"]["extra"]["request_id"] == trace_id
@@ -98,7 +97,7 @@ class TestMiddlewareStack:
             trace_id = resp.headers["X-Request-ID"]
 
         captured = capsys.readouterr()
-        last_log = captured.err.strip().split('\n')[-1]
+        last_log = captured.err.strip().split("\n")[-1]
 
         assert len(trace_id) == 36
         assert "GET /log-test" in last_log

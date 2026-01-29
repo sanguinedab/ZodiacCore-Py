@@ -9,7 +9,6 @@ from zodiac_core.http import ZodiacClient, ZodiacSyncClient
 
 
 class TestZodiacHttpClients:
-
     @pytest.fixture(autouse=True)
     def clear_context(self):
         """Ensure context is cleared before each test."""
@@ -48,6 +47,7 @@ class TestZodiacHttpClients:
 
     def test_inheritance_usage(self):
         """Test that inheritance works as expected."""
+
         class MyService(ZodiacSyncClient):
             def get_data(self):
                 return self.get("/data")
@@ -67,6 +67,7 @@ class TestZodiacHttpClients:
     @pytest.mark.asyncio
     async def test_custom_hooks_preserved(self):
         """Test that custom hooks and trace injection work together."""
+
         async def custom_hook(request):
             request.headers["X-Custom"] = "val"
 
