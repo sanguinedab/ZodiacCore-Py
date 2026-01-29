@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, BeforeValidator
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
 
 
 def ensure_utc(v: Any) -> Any:

@@ -1,10 +1,11 @@
-from typing import Any, Callable, get_origin, get_args, Dict, Optional, Union, List
-from functools import wraps
 import inspect
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional, Union, get_args, get_origin
 
-from fastapi import Response as FastAPIResponse, APIRouter as FastAPIRouter
-from fastapi.routing import APIRoute
+from fastapi import APIRouter as FastAPIRouter
+from fastapi import Response as FastAPIResponse
 from fastapi.datastructures import DefaultPlaceholder
+from fastapi.routing import APIRoute
 from pydantic import create_model
 
 from zodiac_core.response import Response

@@ -7,7 +7,7 @@ from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from zodiac_core.context import set_request_id, reset_request_id
+from zodiac_core.context import reset_request_id, set_request_id
 
 
 def default_id_generator() -> str:

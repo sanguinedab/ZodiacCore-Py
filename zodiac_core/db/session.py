@@ -1,18 +1,18 @@
-from typing import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 try:
-    from sqlmodel import SQLModel
     from sqlalchemy.ext.asyncio import (
         AsyncSession,
-        create_async_engine,
         async_sessionmaker,
+        create_async_engine,
     )
-except ImportError:
+    from sqlmodel import SQLModel
+except ImportError as e:
     raise ImportError(
         "SQLModel and SQLAlchemy[asyncio] are required to use the 'zodiac_core.db' module. "
         "Please install it with: pip install 'zodiac-core[sql]'"
-    )
+    ) from e
 
 
 class DatabaseManager:

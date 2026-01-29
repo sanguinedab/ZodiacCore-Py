@@ -4,8 +4,8 @@ import tempfile
 import pytest
 from loguru import logger
 
-from zodiac_core.logging import setup_loguru, LogFileOptions
 from zodiac_core.context import set_request_id
+from zodiac_core.logging import LogFileOptions, setup_loguru
 
 
 @pytest.mark.asyncio

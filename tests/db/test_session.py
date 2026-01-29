@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
-from zodiac_core.db.session import DatabaseManager, db, get_session, init_db_resource
 
+from zodiac_core.db.session import DatabaseManager, db, get_session, init_db_resource
 
 # Use an in-memory SQLite database for testing
 TEST_DB_URL = "sqlite+aiosqlite:///:memory:"

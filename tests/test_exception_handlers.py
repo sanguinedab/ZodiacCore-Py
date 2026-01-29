@@ -9,12 +9,12 @@ from zodiac_core.exception_handlers import (
     handler_zodiac_exception,
 )
 from zodiac_core.exceptions import (
-    ZodiacException,
     BadRequestException,
-    UnauthorizedException,
+    ConflictException,
     ForbiddenException,
     NotFoundException,
-    ConflictException,
+    UnauthorizedException,
+    ZodiacException,
 )
 
 

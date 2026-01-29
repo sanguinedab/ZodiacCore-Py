@@ -1,9 +1,9 @@
-import os
 import glob
-from pathlib import Path
-from typing import List, Union
-from types import SimpleNamespace
+import os
 from enum import Enum
+from pathlib import Path
+from types import SimpleNamespace
+from typing import List, Union
 
 from loguru import logger
 

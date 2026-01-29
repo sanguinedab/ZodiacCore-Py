@@ -1,6 +1,7 @@
 import os
 from contextlib import contextmanager
-from sqlmodel import SQLModel, Session, create_engine
+
+from sqlmodel import Session, SQLModel, create_engine
 
 # Default local development URLs
 DEFAULT_PG_URL = "postgresql://postgres:@localhost:5432/zodiac_test"

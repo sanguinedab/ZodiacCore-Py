@@ -1,12 +1,12 @@
 import pytest
 
 from zodiac_core.exceptions import (
-    ZodiacException,
     BadRequestException,
-    UnauthorizedException,
+    ConflictException,
     ForbiddenException,
     NotFoundException,
-    ConflictException,
+    UnauthorizedException,
+    ZodiacException,
 )
 
 

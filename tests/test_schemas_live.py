@@ -1,11 +1,12 @@
-import pytest
 from datetime import timezone
+
+import pytest
 from sqlmodel import Session
 
 from zodiac_core.db.sql import SQLBase, UUIDMixin
 from zodiac_core.schemas import UUIDSchema
 
-from tests.db.utils import DB_URLS, managed_db_session
+from .db.utils import DB_URLS, managed_db_session
 
 
 # 1. DB Model

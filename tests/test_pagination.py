@@ -3,9 +3,9 @@ from typing import Annotated
 import pytest
 from fastapi import FastAPI, Query
 from fastapi.testclient import TestClient
-from pydantic import ValidationError, BaseModel
+from pydantic import BaseModel, ValidationError
 
-from zodiac_core.pagination import PageParams, PagedResponse
+from zodiac_core.pagination import PagedResponse, PageParams
 
 
 class UserDTO(BaseModel):

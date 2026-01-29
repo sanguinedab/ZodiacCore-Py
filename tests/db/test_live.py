@@ -1,10 +1,11 @@
-import pytest
-from time import sleep
 from datetime import timezone
-from sqlmodel import Session, select
-from sqlalchemy import text
+from time import sleep
 
-from zodiac_core.db.sql import UUIDModel, IntIDModel
+import pytest
+from sqlalchemy import text
+from sqlmodel import Session, select
+
+from zodiac_core.db.sql import IntIDModel, UUIDModel
 
 from .utils import DB_URLS, managed_db_session
 

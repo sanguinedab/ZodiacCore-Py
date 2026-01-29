@@ -1,8 +1,8 @@
-from typing import Any, Optional, TypeVar, Generic
+from typing import Any, Generic, Optional, TypeVar
 
-from pydantic import BaseModel, Field, ConfigDict
 from fastapi import status
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
 

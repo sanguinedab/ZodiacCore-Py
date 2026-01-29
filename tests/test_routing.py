@@ -1,9 +1,11 @@
 import pytest
-from fastapi import FastAPI, APIRouter as NativeAPIRouter
+from fastapi import APIRouter as NativeAPIRouter
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
-from zodiac_core import APIRouter as ZodiacAPIRouter, response_ok, Response
+from zodiac_core import APIRouter as ZodiacAPIRouter
+from zodiac_core import Response, response_ok
 
 
 class User(BaseModel):

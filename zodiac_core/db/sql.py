@@ -2,16 +2,16 @@ import uuid
 from datetime import datetime, timezone
 
 try:
-    from sqlmodel import SQLModel, Field
     from sqlalchemy import DateTime, event
     from sqlalchemy.ext.compiler import compiles
-    from sqlalchemy.sql import expression
     from sqlalchemy.orm import Session
-except ImportError:
+    from sqlalchemy.sql import expression
+    from sqlmodel import Field, SQLModel
+except ImportError as e:
     raise ImportError(
         "SQLModel is required to use the 'zodiac_core.db.sql' module. "
         "Please install it with: pip install 'zodiac-core[sql]'"
-    )
+    ) from e
 
 
 def utc_now() -> datetime:
