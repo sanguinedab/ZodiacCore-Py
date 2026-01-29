@@ -76,6 +76,7 @@ def setup_loguru(
     c_config = console_options or {}
     c_config.setdefault("level", level)
     c_config.setdefault("sink", sys.stderr)
+    c_config.setdefault("enqueue", True)  # Use thread-safe queue
 
     if json_format:
         c_config.setdefault("serialize", True)
@@ -94,6 +95,7 @@ def setup_loguru(
         # Ensure mandatory defaults
         f_config.setdefault("sink", log_file)
         f_config.setdefault("level", level)
+        f_config.setdefault("enqueue", True)
 
         if json_format:
             f_config.setdefault("serialize", True)

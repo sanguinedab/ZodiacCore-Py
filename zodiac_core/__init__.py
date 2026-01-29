@@ -10,7 +10,7 @@ from .exceptions import (
     ZodiacException,
 )
 from .logging import LogFileOptions, setup_loguru
-from .middleware import TraceIDMiddleware
+from .middleware import TraceIDMiddleware, register_middleware
 from .response import (
     Response,
     create_response,
@@ -38,6 +38,7 @@ __all__ = [
     "response_conflict",
     "response_unprocessable_entity",
     "response_server_error",
+    "register_middleware",
     "ZodiacRoute",
     "APIRouter",
     "ZodiacException",
