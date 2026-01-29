@@ -1,12 +1,11 @@
+import json
 from datetime import timezone
 
 import pytest
-from sqlmodel import Session
 
+from tests.db.utils import DB_URLS, managed_db_session
 from zodiac_core.db.sql import SQLBase, UUIDMixin
 from zodiac_core.schemas import UUIDSchema
-
-from .db.utils import DB_URLS, managed_db_session
 
 
 # 1. DB Model
@@ -20,42 +19,33 @@ class ProductDB(SQLBase, UUIDMixin, table=True):
 class ProductResponse(UUIDSchema):
     name: str
     price: float
-    # UUIDSchema includes: CoreModel Config + UUID + CreatedAt + UpdatedAt
 
 
 @pytest.mark.serial
 class TestSchemaConsistency:
     @pytest.mark.parametrize("name,url,connect_args", DB_URLS)
-    def test_schema_serialization_consistency(self, name, url, connect_args):
+    @pytest.mark.asyncio
+    async def test_schema_serialization_consistency(self, name, url, connect_args):
         """
         Test that data retrieved from different DB engines is serialized
         consistently by Pydantic Schemas, especially Timezones.
         """
-        with managed_db_session(url, connect_args) as (engine, session):
-            with Session(engine) as session:
-                p = ProductDB(name="Standard Item", price=99.9)
-                session.add(p)
-                session.commit()
-                session.refresh(p)
+        async with managed_db_session(url, connect_args) as (engine, session):
+            p = ProductDB(name="Standard Item", price=99.9)
+            session.add(p)
+            await session.commit()
+            await session.refresh(p)
 
-                dto = ProductResponse.model_validate(p)
+            dto = ProductResponse.model_validate(p)
 
-                assert dto.name == "Standard Item"
-                assert str(dto.id) == str(p.id)
+            assert dto.name == "Standard Item"
+            assert str(dto.id) == str(p.id)
 
-                assert dto.created_at.tzinfo is not None, f"{name}: created_at lost timezone info"
-                assert dto.created_at.tzinfo == timezone.utc, f"{name}: created_at is not UTC"
+            assert dto.created_at.tzinfo == timezone.utc
+            assert dto.updated_at.tzinfo == timezone.utc
 
-                assert dto.updated_at.tzinfo is not None
-                assert dto.updated_at.tzinfo == timezone.utc
+            json_output = dto.model_dump_json()
+            data = json.loads(json_output)
 
-                json_output = dto.model_dump_json()
-
-                import json
-
-                data = json.loads(json_output)
-
-                created_str = data["created_at"]
-                assert created_str.endswith("+00:00") or created_str.endswith("Z"), (
-                    f"{name}: JSON output {created_str} does not look like UTC ISO format"
-                )
+            created_str = data["created_at"]
+            assert created_str.endswith("+00:00") or created_str.endswith("Z")

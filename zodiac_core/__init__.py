@@ -1,5 +1,6 @@
 from .config import ConfigManagement, Environment
 from .context import get_request_id
+from .db.repository import BaseSQLRepository
 from .exception_handlers import register_exception_handlers
 from .exceptions import (
     BadRequestException,
@@ -41,6 +42,7 @@ __all__ = [
     "register_middleware",
     "ZodiacRoute",
     "APIRouter",
+    "BaseSQLRepository",
     "ZodiacException",
     "BadRequestException",
     "UnauthorizedException",

@@ -1,9 +1,9 @@
 from datetime import timezone
-from time import sleep
 
 import pytest
 from sqlalchemy import text
-from sqlmodel import Session, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from zodiac_core.db.sql import IntIDModel, UUIDModel
 
@@ -23,11 +23,11 @@ class Category(IntIDModel, table=True):
 
 @pytest.mark.serial
 class TestSQL:
-    def _assert_uuid(self, session: Session, is_utc: bool = False):
+    async def _assert_uuid(self, session: AsyncSession, is_utc: bool = False):
         p1 = Product(name="MacBook Pro", price=2000.0)
         session.add(p1)
-        session.commit()
-        session.refresh(p1)
+        await session.commit()
+        await session.refresh(p1)
 
         assert p1.id is not None
         assert len(str(p1.id)) == 36
@@ -41,44 +41,51 @@ class TestSQL:
         original_created_at = p1.created_at
         original_updated_at = p1.updated_at
 
-        sleep(1.1)
+        # Async tests don't like blocking sleep, but for timestamp diff it's needed
+        import asyncio
+
+        await asyncio.sleep(1.1)
+
         p1.name = "MacBook Air"
         session.add(p1)
-        session.commit()
-        session.refresh(p1)
+        await session.commit()
+        await session.refresh(p1)
 
         # Created_at should NOT change
         assert p1.created_at == original_created_at
         # Updated_at SHOULD change (triggered by event listener)
         assert p1.updated_at > original_updated_at
 
-    def _assert_id(self, engine, session: Session):
+    async def _assert_id(self, engine, session: AsyncSession):
         c1 = Category(name="Electronics")
         session.add(c1)
-        session.commit()
-        session.refresh(c1)
+        await session.commit()
+        await session.refresh(c1)
 
         assert isinstance(c1.id, int)
         assert c1.id >= 1
 
-        session.commit()
-        # Raw insert into Category (id is auto-increment, only providing name)
-        # created_at and updated_at should be filled by 'server_default'
-        with engine.connect() as conn:
-            conn.execute(text("INSERT INTO test_categories (name) VALUES ('Books')"))
-            conn.commit()
+        # Raw insert into Category
+        async with engine.connect() as conn:
+            await conn.execute(text("INSERT INTO test_categories (name) VALUES ('Books')"))
+            await conn.commit()
 
-        c2 = session.exec(select(Category).where(Category.name == "Books")).one()
+        # Commit current session to end current transaction and see new data in the next query
+        await session.commit()
+
+        res = await session.execute(select(Category).where(Category.name == "Books"))
+        c2 = res.scalar_one()
+
         assert c2.created_at is not None
         assert c2.updated_at is not None
 
     @pytest.mark.parametrize("name,url,connect_args", DB_URLS)
-    def test_db_lifecycle(self, name, url, connect_args):
+    @pytest.mark.asyncio
+    async def test_db_lifecycle(self, name, url, connect_args):
         """
         Test DB lifecycle across different engines:
         DDL -> Insert -> Verify Fields (ID/Time) -> Update -> Verify Time Change
         """
-        with managed_db_session(url, connect_args) as (engine, session):
-            with Session(engine) as session:
-                self._assert_uuid(session, name == "postgresql")
-                self._assert_id(engine, session)
+        async with managed_db_session(url, connect_args) as (engine, session):
+            await self._assert_uuid(session, name == "postgresql")
+            await self._assert_id(engine, session)

@@ -1,38 +1,42 @@
 import os
-from contextlib import contextmanager
+from contextlib import asynccontextmanager
 
-from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlmodel import SQLModel
 
 # Default local development URLs
-DEFAULT_PG_URL = "postgresql://postgres:@localhost:5432/zodiac_test"
-DEFAULT_MYSQL_URL = "mysql+pymysql://root:root@localhost:3306/zodiac_test"
+DEFAULT_PG_URL = "postgresql+asyncpg://postgres:@localhost:5432/zodiac_test"
+DEFAULT_MYSQL_URL = "mysql+aiomysql://root:root@localhost:3306/zodiac_test"
 
 DB_URLS = [
-    ("sqlite", "sqlite:///:memory:", None),
+    ("sqlite", "sqlite+aiosqlite:///:memory:", None),
     (
         "postgresql",
         os.getenv("POSTGRES_URL", DEFAULT_PG_URL),
-        {"options": "-c timezone=utc"},
+        {"server_settings": {"timezone": "utc"}},
     ),
     (
         "mysql",
         os.getenv("MYSQL_URL", DEFAULT_MYSQL_URL),
-        {"init_command": "SET time_zone='+00:00'"},
+        None,
     ),
 ]
 
 
-@contextmanager
-def managed_db_session(url, connect_args=None):
-    """Manage the lifecycle of a database session."""
+@asynccontextmanager
+async def managed_db_session(url, connect_args=None):
+    """Manage the lifecycle of an async database session."""
     extras = dict(connect_args=connect_args) if connect_args else {}
-    engine = create_engine(url, **extras)
+    engine = create_async_engine(url, **extras)
 
     try:
-        SQLModel.metadata.drop_all(engine)
-        SQLModel.metadata.create_all(engine)
+        # Async DDL needs run_sync
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.drop_all)
+            await conn.run_sync(SQLModel.metadata.create_all)
 
-        with Session(engine) as session:
+        session_factory = async_sessionmaker(engine, expire_on_commit=False)
+        async with session_factory() as session:
             yield engine, session
     finally:
-        engine.dispose()
+        await engine.dispose()
