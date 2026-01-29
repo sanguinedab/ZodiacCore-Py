@@ -17,19 +17,28 @@ dependencies = [
 
 [project.optional-dependencies]
 zodiac = []
-sql = [
-    "sqlmodel>=0.0.31",
-]
-mongo = [
-    "motor>=3.3.0",
-]
+sql = ["sqlmodel>=0.0.31"]
+mongo = ["motor>=3.3.0"]
 
 [tool.setuptools]
 packages = ["zodiac", "zodiac_core"]
 
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [".venv", ".tox", "demo*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
 [dependency-groups]
 dev = [
-    "flake8>=7.3.0",
+    "ruff>=0.9.3",
     "ipython>=9.9.0",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
@@ -43,6 +52,4 @@ dev = [
     "aiosqlite>=0.22.1",
     "uvicorn>=0.40.0",
 ]
-sql = [
-    "sqlmodel>=0.0.31",
-]
+sql = ["sqlmodel>=0.0.31"]

@@ -83,7 +83,7 @@ class SQLBase(SQLDateTimeMixin):
 
 class IntIDMixin(SQLModel):
     """Mixin for Integer primary key."""
-    id: int = Field(primary_key=True, nullable=False,)
+    id: int = Field(primary_key=True, nullable=False)
 
 
 class UUIDMixin(SQLModel):

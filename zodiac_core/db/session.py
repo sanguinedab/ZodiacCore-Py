@@ -6,7 +6,7 @@ try:
     from sqlalchemy.ext.asyncio import (
         AsyncSession,
         create_async_engine,
-        async_sessionmaker
+        async_sessionmaker,
     )
 except ImportError:
     raise ImportError(
@@ -90,7 +90,7 @@ class DatabaseManager:
         engine_args = {
             "echo": echo,
             "pool_pre_ping": pool_pre_ping,
-            **kwargs
+            **kwargs,
         }
 
         if "sqlite" not in database_url:
@@ -149,7 +149,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 async def init_db_resource(
     database_url: str,
     echo: bool = False,
-    **kwargs
+    **kwargs,
 ) -> AsyncGenerator[DatabaseManager, None]:
     """
     A helper for dependency_injector's Resource provider.
