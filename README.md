@@ -1,0 +1,83 @@
+# ZodiacCore-Py
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.12+-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.12+">
+  <img src="https://img.shields.io/badge/FastAPI-0.109+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Pydantic-v2-e92063.svg?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic v2">
+  <img src="https://img.shields.io/badge/Async-First-purple.svg?style=for-the-badge" alt="Async First">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License MIT">
+</p>
+
+> **The opinionated, async-first core library for modern Python web services.**
+
+## 🎯 Mission
+
+**Stop copy-pasting your infrastructure code.**
+
+Every new FastAPI project starts the same way: setting up logging, error handling, database sessions, pagination... It's tedious, error-prone, and inconsistent across teams.
+
+**ZodiacCore** solves this by providing a standardized, production-ready foundation. It encapsulates the "boring but critical" components so you can focus 100% on business logic.
+
+## ✨ Key Features
+
+*   **🔍 Observability First**: Built-in JSON structured logging with **Trace ID** injection across the entire request lifecycle (Middleware -> Context -> Log).
+*   **🛡️ Robust Error Handling**: Centralized exception handlers that automatically map business exceptions (`ZodiacException`) to standard HTTP 4xx/5xx JSON responses.
+*   **💾 Database Abstraction**: Lightweight async SQLAlchemy session management with context vars support (`BaseSQLRepository`).
+*   **📄 Standard Pagination**: Drop-in Pydantic models for request parameters (`PageParams`) and responses (`PagedResponse`).
+*   **⚡ Async Ready**: Designed from the ground up for Python 3.12+ async/await ecosystems.
+
+## 📦 Quick Install
+
+Standard installation:
+
+```bash
+pip install zodiac-core
+```
+
+With SQL support:
+
+```bash
+pip install "zodiac-core[sql]"
+```
+
+With MongoDB support:
+
+```bash
+pip install "zodiac-core[mongo]"
+```
+
+For detailed installation instructions, please refer to the **Installation Guide** in the documentation.
+
+## 🚀 Usage at a Glance
+
+```python
+from fastapi import FastAPI
+from zodiac_core.logging import setup_loguru
+from zodiac_core.middleware import register_middleware
+from zodiac_core.exception_handlers import register_exception_handlers
+from zodiac_core.exceptions import NotFoundException
+
+# 1. Initialize Standard Logging
+setup_loguru(level="INFO", json_format=True)
+
+app = FastAPI()
+
+# 2. Register Middleware & Error Handlers
+register_middleware(app)
+register_exception_handlers(app)
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 0:
+        # Raises standard 404 JSON response
+        raise NotFoundException(message="Item not found")
+    return {"item_id": item_id}
+```
+
+## 📚 Documentation
+
+Detailed documentation is available in the `docs/` directory or can be viewed locally:
+
+```bash
+make docs-serve
+```

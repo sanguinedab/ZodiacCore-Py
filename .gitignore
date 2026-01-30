@@ -12,3 +12,4 @@ wheels/
 .benchmarks
 demo
 demo*
+site/

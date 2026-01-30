@@ -111,8 +111,8 @@ class ConfigManagement:
         """
         Recursively converts a configuration dictionary into a SimpleNamespace object.
 
-        This allows accessing configuration values using dot notation (e.g., config.db.host)
-        instead of bracket notation (e.g., config['db']['host']). It also handles
+        This allows accessing configuration values using dot notation (e.g., `config.db.host`)
+        instead of bracket notation (e.g., `config['db']['host']`). It also handles
         nested dictionaries within lists.
 
         Args:
