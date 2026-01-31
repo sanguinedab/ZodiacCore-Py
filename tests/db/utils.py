@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
 # Default local development URLs
-DEFAULT_PG_URL = "postgresql+asyncpg://postgres:@localhost:5432/zodiac_test"
+DEFAULT_PG_URL = "postgresql+asyncpg://postgres@localhost:5432/zodiac_test"
 DEFAULT_MYSQL_URL = "mysql+aiomysql://root:root@localhost:3306/zodiac_test"
 
 DB_URLS = [
