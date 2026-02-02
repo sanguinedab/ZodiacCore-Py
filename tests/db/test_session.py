@@ -1,7 +1,9 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import Field, SQLModel
 
 from zodiac_core.db.session import (
     DEFAULT_DB_NAME,
@@ -61,6 +63,34 @@ class TestDatabaseManager:
         await db.shutdown()
         assert DEFAULT_DB_NAME not in db._engines
         assert DEFAULT_DB_NAME not in db._session_factories
+
+    @pytest.mark.asyncio
+    async def test_create_all(self):
+        """Verify db.create_all() successfully creates tables."""
+        if db._engines:
+            await db.shutdown()
+
+        # Define a model specifically for this test
+        class TestCreateAllModel(SQLModel, table=True):
+            __tablename__ = "test_create_all_table"
+            id: int = Field(primary_key=True)
+            name: str
+
+        # Use in-memory SQLite for speed and isolation
+        url = "sqlite+aiosqlite:///:memory:"
+        db.setup(url)
+
+        await db.create_all()
+
+        async with db.session() as session:
+            # Check if table exists in SQLite
+            result = await session.execute(
+                text("SELECT name FROM sqlite_master WHERE type='table' AND name='test_create_all_table'")
+            )
+            table_name = result.scalar()
+            assert table_name == "test_create_all_table"
+
+        await db.shutdown()
 
 
 class TestSessionManagement:
