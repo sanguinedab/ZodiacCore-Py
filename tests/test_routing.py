@@ -1,3 +1,5 @@
+from typing import List, Union
+
 import pytest
 from fastapi import APIRouter as NativeAPIRouter
 from fastapi import FastAPI
@@ -6,6 +8,7 @@ from pydantic import BaseModel
 
 from zodiac_core import APIRouter as ZodiacAPIRouter
 from zodiac_core import Response, response_ok
+from zodiac_core.routing import ZodiacRoute, _get_model_name
 
 
 class User(BaseModel):
@@ -141,3 +144,35 @@ class TestZodiacRouting:
         assert "409" in conflict_responses
         conflict_ref = conflict_responses["409"]["content"]["application/json"]["schema"]["$ref"]
         assert "Response_ErrorMessage" in conflict_ref
+
+
+class TestRoutingInternalLogic:
+    """Unit tests for internal routing logic to ensure 100% code coverage."""
+
+    def test_get_model_name_coverage(self):
+        """Covers lines 17-21 in zodiac_core/routing.py."""
+        assert _get_model_name(User) == "User"
+        assert _get_model_name(List[User]) == "List_User"
+        assert _get_model_name(List[List[User]]) == "List_List_User"
+        assert _get_model_name(List) == "List"
+        assert _get_model_name(int) == "int"
+
+    def test_should_wrap_logic(self):
+        """Covers lines 65, 69-70 in zodiac_core/routing.py."""
+
+        class MyResponse(Response):
+            pass
+
+        # 1. Standard types
+        assert ZodiacRoute._should_wrap(User) is True
+        assert ZodiacRoute._should_wrap(None) is True
+
+        # 2. Response subclasses
+        assert ZodiacRoute._should_wrap(Response) is False
+        assert ZodiacRoute._should_wrap(MyResponse) is False
+
+        # 3. Response[T] generic (Line 65)
+        assert ZodiacRoute._should_wrap(Response[User]) is False
+
+        # 4. Union types (Lines 69-70: TypeError in issubclass)
+        assert ZodiacRoute._should_wrap(Union[User, None]) is True

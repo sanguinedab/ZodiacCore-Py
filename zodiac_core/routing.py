@@ -12,12 +12,12 @@ from zodiac_core.response import Response
 
 
 def _get_model_name(model: Any) -> str:
-    if hasattr(model, "__name__"):
-        return model.__name__
     origin = get_origin(model)
     if origin in (list, List):
         args = get_args(model)
         return f"List_{_get_model_name(args[0])}" if args else "List"
+    if hasattr(model, "__name__"):
+        return model.__name__
     return "Data"
 
 
