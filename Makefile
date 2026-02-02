@@ -1,6 +1,15 @@
-.PHONY: lint test test-parallel test-serial clean docs-serve docs-build
+.PHONY: lint test test-parallel test-serial bench bench-save bench-compare clean docs-serve docs-build
 
 test: test-parallel test-serial
+
+bench:
+	uv run pytest benchmarks/ -v
+
+bench-save:
+	uv run pytest benchmarks/ -v --benchmark-save=baseline
+
+bench-compare:
+	uv run pytest benchmarks/ -v --benchmark-compare=baseline
 
 lint:
 	uvx --with tox-uv tox -e lint
