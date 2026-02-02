@@ -5,7 +5,6 @@
   <img src="https://img.shields.io/badge/FastAPI-0.109+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/Pydantic-v2-e92063.svg?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic v2">
   <img src="https://img.shields.io/badge/Async-First-purple.svg?style=for-the-badge" alt="Async First">
-  <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License MIT">
 </p>
 
 > **The opinionated, async-first core library for modern Python web services.**
