@@ -1,17 +1,11 @@
-from typing import List
-
 from zodiac_core.response import Response
-from zodiac_core.routing import ZodiacRoute, _get_model_name
+from zodiac_core.routing import ZodiacRoute
 
 from .conftest import BenchmarkUser
 
 
 class TestInternalMicroBenchmarks:
     """Micro-benchmarks for internal Zodiac logic."""
-
-    def test_internal_name_extraction(self, benchmark):
-        """Measure model name resolution cost."""
-        benchmark(_get_model_name, List[BenchmarkUser])
 
     def test_internal_wrap_check(self, benchmark):
         """Measure decision logic overhead."""

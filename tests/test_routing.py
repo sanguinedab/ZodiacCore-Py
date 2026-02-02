@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Union
 
 import pytest
 from fastapi import APIRouter as NativeAPIRouter
@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from zodiac_core import APIRouter as ZodiacAPIRouter
 from zodiac_core import Response, response_ok
-from zodiac_core.routing import ZodiacRoute, _get_model_name
+from zodiac_core.routing import ZodiacRoute
 
 
 class User(BaseModel):
@@ -117,16 +117,19 @@ class TestZodiacRouting:
         native_schema_ref = native_path["content"]["application/json"]["schema"]["$ref"]
         assert "User" in native_schema_ref
 
-        # 2. Verify Zodiac interface doc: points to dynamically generated wrapped model (e.g., Response_User)
+        # 2. Verify Zodiac interface doc: points to Response[User] (Pydantic native generics)
         zodiac_path = schema["paths"]["/zodiac/user"]["get"]["responses"]["200"]
         zodiac_schema_ref = zodiac_path["content"]["application/json"]["schema"]["$ref"]
-        assert "Response_User" in zodiac_schema_ref
+        # Pydantic generates names like "Response_User_" for Response[User]
+        assert "Response" in zodiac_schema_ref and "User" in zodiac_schema_ref
 
-        # 3. Verify wrapped model structure
+        # 3. Verify wrapped model structure exists in components
         components = schema["components"]["schemas"]
-        assert "Response_User" in components
-        wrapped_model = components["Response_User"]
+        # Find the Response[User] model (Pydantic may name it Response_User_ or similar)
+        response_user_models = [k for k in components if "Response" in k and "User" in k]
+        assert len(response_user_models) >= 1, f"Expected Response[User] model, got: {list(components.keys())}"
 
+        wrapped_model = components[response_user_models[0]]
         props = wrapped_model["properties"]
         assert "code" in props
         assert "message" in props
@@ -143,19 +146,11 @@ class TestZodiacRouting:
         conflict_responses = schema["paths"]["/zodiac/conflict"]["post"]["responses"]
         assert "409" in conflict_responses
         conflict_ref = conflict_responses["409"]["content"]["application/json"]["schema"]["$ref"]
-        assert "Response_ErrorMessage" in conflict_ref
+        assert "Response" in conflict_ref and "ErrorMessage" in conflict_ref
 
 
 class TestRoutingInternalLogic:
     """Unit tests for internal routing logic to ensure 100% code coverage."""
-
-    def test_get_model_name_coverage(self):
-        """Covers lines 17-21 in zodiac_core/routing.py."""
-        assert _get_model_name(User) == "User"
-        assert _get_model_name(List[User]) == "List_User"
-        assert _get_model_name(List[List[User]]) == "List_List_User"
-        assert _get_model_name(List) == "List"
-        assert _get_model_name(int) == "int"
 
     def test_should_wrap_logic(self):
         """Covers lines 65, 69-70 in zodiac_core/routing.py."""
