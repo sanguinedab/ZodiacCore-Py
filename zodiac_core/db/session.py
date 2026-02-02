@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, Dict, Optional
+from typing import Any, AsyncGenerator, Dict, Optional
+
+from loguru import logger
 
 try:
+    from sqlalchemy import text
     from sqlalchemy.ext.asyncio import (
         AsyncEngine,
         AsyncSession,
@@ -24,6 +27,17 @@ async def manage_session(factory: async_sessionmaker[AsyncSession]) -> AsyncGene
     """
     Standardizes the lifecycle management of an AsyncSession.
     Ensures rollback on error and proper closure.
+
+    Note:
+        This context manager does NOT auto-commit. You must explicitly call
+        `await session.commit()` to persist changes to the database.
+
+    Example:
+        ```python
+        async with manage_session(factory) as session:
+            session.add(user)
+            await session.commit()  # Required to persist changes
+        ```
     """
     session: AsyncSession = factory()
     try:
@@ -127,6 +141,7 @@ class DatabaseManager:
     ) -> None:
         """Initialize an Async Engine and Session Factory with a specific name."""
         if name in self._engines:
+            logger.warning(f"Database '{name}' is already configured, skipping duplicate setup.")
             return
 
         engine_args = {
@@ -150,6 +165,7 @@ class DatabaseManager:
 
         self._engines[name] = engine
         self._session_factories[name] = factory
+        logger.info(f"Database '{name}' initialized successfully.")
 
     async def shutdown(self) -> None:
         """Dispose of all registered engines and clear factories."""
@@ -160,14 +176,66 @@ class DatabaseManager:
 
     @asynccontextmanager
     async def session(self, name: str = DEFAULT_DB_NAME) -> AsyncGenerator[AsyncSession, None]:
-        """Context Manager for obtaining a NEW database session from a specific engine."""
+        """
+        Context Manager for obtaining a NEW database session from a specific engine.
+
+        Note:
+            This context manager does NOT auto-commit. You must explicitly call
+            `await session.commit()` to persist changes to the database.
+
+        Example:
+            ```python
+            async with db.session() as session:
+                session.add(user)
+                await session.commit()  # Required to persist changes
+            ```
+        """
         async with manage_session(self.get_factory(name)) as session:
             yield session
 
-    async def create_all(self, name: str = DEFAULT_DB_NAME) -> None:
-        """Create all tables defined in SQLModel metadata for a specific engine."""
+    async def verify(self, name: str = DEFAULT_DB_NAME) -> bool:
+        """
+        Verify the database connection is working.
+
+        Args:
+            name: The database name to verify.
+
+        Returns:
+            True if connection is successful.
+
+        Raises:
+            RuntimeError: If the database is not initialized.
+            Exception: If the connection test fails.
+        """
+        async with self.session(name) as session:
+            await session.execute(text("SELECT 1"))
+        logger.info(f"Database '{name}' connection verified.")
+        return True
+
+    async def create_all(self, name: str = DEFAULT_DB_NAME, metadata: Any = None) -> None:
+        """
+        Create tables in the database.
+
+        Args:
+            name: The database name to create tables in.
+            metadata: SQLAlchemy MetaData object. If None, uses SQLModel.metadata
+                      which includes ALL registered models. For production, consider
+                      using Alembic migrations instead.
+
+        Example:
+            ```python
+            # Development: create all tables
+            await db.create_all()
+
+            # With custom metadata (only specific tables)
+            from sqlalchemy import MetaData
+            my_metadata = MetaData()
+            await db.create_all(metadata=my_metadata)
+            ```
+        """
+        target_metadata = metadata if metadata is not None else SQLModel.metadata
         async with self.get_engine(name).begin() as conn:
-            await conn.run_sync(SQLModel.metadata.create_all)
+            await conn.run_sync(target_metadata.create_all)
 
 
 # Global instance
@@ -175,7 +243,23 @@ db = DatabaseManager()
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI Dependency for obtaining a default database session."""
+    """
+    FastAPI Dependency for obtaining a default database session.
+
+    Note:
+        This dependency does NOT auto-commit. You must explicitly call
+        `await session.commit()` within your endpoint to persist changes.
+
+    Example:
+        ```python
+        @app.post("/users")
+        async def create_user(session: AsyncSession = Depends(get_session)):
+            user = User(name="test")
+            session.add(user)
+            await session.commit()  # Required to persist changes
+            return user
+        ```
+    """
     async with db.session() as session:
         yield session
 

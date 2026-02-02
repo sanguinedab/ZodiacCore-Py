@@ -36,6 +36,10 @@ class BaseSQLRepository:
         """
         Async context manager for obtaining a database session.
         Uses the injected factory or resolves one from the global 'db' via 'db_name'.
+
+        Note:
+            This context manager does NOT auto-commit. You must explicitly call
+            `await session.commit()` to persist changes to the database.
         """
         factory = self._session_factory or db.get_factory(self.db_name)
         async with manage_session(factory) as session:
