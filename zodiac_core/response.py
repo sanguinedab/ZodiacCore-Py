@@ -12,9 +12,9 @@ class Response(BaseModel, Generic[T]):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    code: int = Field(description="Business status code")
+    code: int = Field(default=0, description="Business status code")
     data: Optional[T] = Field(default=None, description="Response payload")
-    message: str = Field(default="", description="Response message")
+    message: str = Field(default="Success", description="Response message")
 
 
 def create_response(

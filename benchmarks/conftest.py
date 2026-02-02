@@ -76,6 +76,10 @@ def benchmark_apps(large_user_list) -> Tuple[FastAPI, FastAPI, FastAPI]:
     def get_full_small():
         return BenchmarkUser(id=1, name="Full", email="f@t.com")
 
+    @full_router.get("/large", response_model=List[BenchmarkUser])
+    def get_full_large():
+        return large_user_list
+
     full_app.include_router(full_router)
 
     return native_app, zodiac_app, full_app
