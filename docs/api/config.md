@@ -48,7 +48,7 @@ config_files = ConfigManagement.get_config_files(
 
 ## 3. Configuration Objects
 
-ZodiacCore provides two ways to access your configuration data using `provide_config`:
+ZodiacCore provides two ways to access your configuration data using `ConfigManagement.provide_config`:
 
 ### Mode A: SimpleNamespace (Quick Access)
 This mode is useful for rapid prototyping. It converts the dictionary into a `SimpleNamespace`, allowing for dot-notation access but without type hints or validation.
