@@ -5,6 +5,7 @@
   <img src="https://img.shields.io/badge/FastAPI-0.109+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI">
   <img src="https://img.shields.io/badge/Pydantic-v2-e92063.svg?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic v2">
   <img src="https://img.shields.io/badge/Async-First-purple.svg?style=for-the-badge" alt="Async First">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License">
 </p>
 
 > **The opinionated, async-first core library for modern Python web services.**
@@ -84,8 +85,13 @@ app.include_router(router)
 
 ## 📚 Documentation
 
-Detailed documentation is available in the `docs/` directory or can be viewed locally:
+- **Online**: [https://ttwshell.github.io/ZodiacCore-Py/](https://ttwshell.github.io/ZodiacCore-Py/) (multiple versions via release).
+- **Local**: `make docs-serve` (sources in `docs/`).
 
-```bash
-make docs-serve
-```
+## 🤝 Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and workflow.
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
