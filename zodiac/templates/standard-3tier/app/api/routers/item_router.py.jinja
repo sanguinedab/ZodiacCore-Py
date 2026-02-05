@@ -22,9 +22,9 @@ async def list_items(
     service: Annotated[ItemService, Depends(Provide[Container.item_service])],
 ):
     """List items with pagination."""
-    items, total = await service.list_items(page_params)
-    logger.info(f"list_items total={total}")
-    return PagedResponse.create(items, total, page_params)
+    result = await service.list_items(page_params)
+    logger.info(f"list_items total={result.total}")
+    return result
 
 
 @router.get("/{item_id}", response_model=ItemSchema)
