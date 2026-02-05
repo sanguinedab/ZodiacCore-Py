@@ -34,7 +34,14 @@ def get_template_path(template_id: str) -> Path:
     type=click.Path(path_type=str),
     help="Directory where the project will be generated.",
 )
-def new_cmd(project_name: str, template: str, output_dir: str) -> None:
+@click.option(
+    "-f",
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Overwrite files in the target directory if it exists.",
+)
+def new_cmd(project_name: str, template: str, output_dir: str, force: bool) -> None:
     """Generate a new project from a template.
 
     PROJECT_NAME  Name of the project (required).
@@ -42,8 +49,8 @@ def new_cmd(project_name: str, template: str, output_dir: str) -> None:
     target_path = Path(output_dir) / project_name
     template_path = get_template_path(template)
 
-    if target_path.exists():
-        raise click.ClickException(f"Directory already exists: {target_path}")
+    if target_path.exists() and not force:
+        raise click.ClickException(f"Directory already exists: {target_path}. Use --force to overwrite.")
 
     click.echo(f"🚀 Generating project {project_name} using {template}...")
 

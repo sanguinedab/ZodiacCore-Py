@@ -1,29 +1,56 @@
+from pathlib import Path
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from zodiac_core.routing import APIRouter
+
+from zodiac_core import ConfigManagement
 from zodiac_core.logging import setup_loguru
 from zodiac_core.middleware import register_middleware
 from zodiac_core.exception_handlers import register_exception_handlers
-from loguru import logger
+from zodiac_core.db import db
 
-# 1. Setup Standard Logging
-setup_loguru(
-    level="INFO",
-    json_format=True,
-    service_name="{{ project_name }}"
-)
+from app.core.container import Container
+from app.infrastructure.database.models.item_model import ItemModel  # noqa: F401
 
-app = FastAPI(title="{{ project_name }}")
 
-# 2. Register Global Middleware & Exception Handlers
-register_middleware(app)
-register_exception_handlers(app)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    container = app.state.container
+    db.setup(
+        database_url=container.config.db.url(),
+        echo=container.config.db.get("echo", as_=bool),
+    )
+    await db.create_all()
+    yield
+    await db.shutdown()
 
-# 3. Standard Router (Automatic Response Wrapping)
-router = APIRouter()
 
-@router.get("/health")
-async def health_check():
-    logger.info("Health check triggered")
-    return {"status": "healthy"}
+def create_app() -> FastAPI:
+    setup_loguru(
+        level="INFO",
+        json_format=True,
+        service_name="{{ project_name }}",
+    )
 
-app.include_router(router)
+    config_dir = Path(__file__).resolve().parent / "config"
+    config_files = ConfigManagement.get_config_files(search_paths=[config_dir])
+    container = Container()
+    for path in config_files:
+        container.config.from_ini(path)
+
+    app = FastAPI(title="{{ project_name }}", lifespan=lifespan)
+    app.state.container = container
+    container.wire(modules=["app.api.routers.item_router"])
+
+    register_middleware(app)
+    register_exception_handlers(app)
+
+    from app.api.router import api_router
+
+    app.include_router(api_router)
+
+    return app
+
+
+app = create_app()
+
