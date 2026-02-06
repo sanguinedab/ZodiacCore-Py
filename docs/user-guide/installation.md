@@ -33,7 +33,7 @@ uv add aiomysql      # For MySQL
 ```
 
 ### MongoDB Support (Motor)
-Installs the `motor` extra so you can use the async MongoDB driver in your app. The library does not yet provide built-in MongoDB session or repository helpers; this extra is for dependency convenience.
+Installs the `motor` extra so you can use the async MongoDB driver in your app. **Built-in MongoDB session and repository helpers are planned for a future release.** For now, this extra is for dependency convenience when you integrate Motor directly.
 
 ```bash
 uv add "zodiac-core[mongo]"

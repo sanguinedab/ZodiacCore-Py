@@ -20,11 +20,24 @@ uv add "zodiac-core[zodiac]"
 | Argument / Option | Required | Description |
 |-------------------|----------|-------------|
 | `PROJECT_NAME`    | Yes      | Name of the project. |
-| `--tpl` / `template` | Yes  | Template id. |
+| `--tpl` / `template` | Yes  | Template id. Currently supported: `standard-3tier`. |
 | `-o` / `--output` | Yes      | Directory where the project will be generated. |
+| `-f` / `--force` | No       | Overwrite files in the target directory if it exists. |
 
-Example:
+## Example
 
 ```bash
-zodiac new my_app --tpl presentation-service-repository -o ./projects
+zodiac new my_app --tpl standard-3tier -o ./projects
 ```
+
+## Generated Project Architecture
+
+The `standard-3tier` template generates a project following the **Standard 3-Tier Layered Architecture** with **Dependency Injection**:
+
+- **API (Presentation)**: FastAPI routers and request/response handling
+- **Application (Logic)**: Business logic and use case orchestration
+- **Infrastructure (Implementation)**: Database models, repositories, and external integrations
+
+The project uses `dependency-injector` for managing component dependencies, providing a clean separation of concerns and making the codebase more testable and maintainable.
+
+> **Note**: While the template uses a 3-tier architecture, ZodiacCore supports flexible layered architectures. You can extend it to a 4-tier architecture with a Domain layer when needed. See the [Architecture Guide](../user-guide/architecture.md) for detailed information.
