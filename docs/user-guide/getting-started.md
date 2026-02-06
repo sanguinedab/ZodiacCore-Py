@@ -143,9 +143,15 @@ The project uses file-based configuration. Configuration files are in the `confi
 The configuration is loaded based on the `ENV` environment variable:
 
 ```python
+from pathlib import Path
 from zodiac_core.config import ConfigManagement
 
-config_files = ConfigManagement.get_config_files(env=os.getenv("ENV", "develop"))
+config_dir = Path(__file__).resolve().parent.parent / "config"
+config_files = ConfigManagement.get_config_files(
+    search_paths=[config_dir],
+    env_var="ENV",
+    default_env="develop",
+)
 container.config.from_ini(*config_files)
 ```
 

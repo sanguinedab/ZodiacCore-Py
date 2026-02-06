@@ -40,4 +40,4 @@ The `standard-3tier` template generates a project following the **Standard 3-Tie
 
 The project uses `dependency-injector` for managing component dependencies, providing a clean separation of concerns and making the codebase more testable and maintainable.
 
-> **Note**: While the template uses a 3-tier architecture, ZodiacCore supports flexible layered architectures. You can extend it to a 4-tier architecture with a Domain layer when needed. See the [Architecture Guide](../user-guide/architecture.md) for detailed information.
+> **Note**: While the template uses a 3-tier architecture, ZodiacCore supports flexible layered architectures. You can extend it to a 4-tier architecture with a Domain layer when needed. See the [Architecture Guide](architecture.md) for detailed information.
