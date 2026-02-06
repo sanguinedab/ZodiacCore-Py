@@ -76,7 +76,6 @@ addopts = """
     --benchmark-warmup=on
     --benchmark-warmup-iterations=10
     --benchmark-min-rounds=5
-    --benchmark-autosave
 """
 log_cli = true
 markers = ["serial: marks tests that must run serially (e.g., database tests)"]
@@ -102,6 +101,7 @@ dev = [
     "pytest-cov>=7.0.0",
     "pytest-env>=1.2.0",
     "pytest-benchmark>=5.1.0",
+    "py-cpuinfo>=9.0.0",
     "respx>=0.22.0",
     "psycopg2-binary>=2.9.9",
     "pymysql>=1.1.0",
