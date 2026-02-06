@@ -2,6 +2,7 @@
 
 import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -248,6 +249,17 @@ class TestGeneratedProjectQuality:
         assert result.exit_code == 0, f"Failed to generate project: {result.output}"
         assert target_path.exists(), f"Project was not created at {target_path}"
 
+        # Make generated project resolvable in this repo context:
+        # point zodiac-core dependency to the local workspace path, instead of PyPI.
+        repo_root = Path(__file__).resolve().parents[2]
+        pyproject_path = target_path / "pyproject.toml"
+        content = pyproject_path.read_text()
+        content = content.replace(
+            '"zodiac-core[sql]"',
+            f'"zodiac-core[sql] @ {repo_root.as_uri()}"',
+        )
+        pyproject_path.write_text(content)
+
         return target_path
 
     def test_generated_project_ruff_lint(self, generated_project_path):
@@ -261,3 +273,22 @@ class TestGeneratedProjectQuality:
         assert ruff_check_result.returncode == 0, (
             f"Ruff lint failed after auto-fix:\n{ruff_check_result.stdout}\n{ruff_check_result.stderr}"
         )
+
+    def test_generated_project_pytest(self, generated_project_path):
+        """Test that generated project installs and passes pytest."""
+        # Install the generated project's deps (including dev test deps) into its own .venv.
+        sync = subprocess.run(
+            ["uv", "sync", "--extra", "dev"],
+            cwd=generated_project_path,
+            capture_output=True,
+            text=True,
+        )
+        assert sync.returncode == 0, f"uv sync failed:\n{sync.stdout}\n{sync.stderr}"
+
+        test = subprocess.run(
+            ["uv", "run", "pytest", "-q"],
+            cwd=generated_project_path,
+            capture_output=True,
+            text=True,
+        )
+        assert test.returncode == 0, f"generated project pytest failed:\n{test.stdout}\n{test.stderr}"
