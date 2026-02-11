@@ -1,8 +1,14 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator, Optional, Type, TypeVar
 
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+try:
+    from sqlalchemy import func, select
+    from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+except ImportError as e:
+    raise ImportError(
+        "SQLModel and SQLAlchemy[asyncio] are required to use the 'zodiac_core.db' module. "
+        "Please install it with: pip install 'zodiac-core[sql]'"
+    ) from e
 
 from zodiac_core.db.session import DEFAULT_DB_NAME, db, manage_session
 from zodiac_core.pagination import PagedResponse, PageParams
